@@ -1,64 +1,237 @@
-import Image from "next/image";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { siteConfig } from "@/content/site";
+import { getMessages } from "@/i18n/messages";
+import { getLocale } from "@/i18n/server";
 
-export default function Home() {
+type NavItem = { label: string; href: `#${string}` };
+
+function SectionHeader({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+}) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <header className="sectionHeader">
+      {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+      <h2 className="h2">{title}</h2>
+      {description ? <p className="sectionDesc">{description}</p> : null}
+    </header>
+  );
+}
+
+function Card({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="card">
+      <h3 className="cardTitle">{title}</h3>
+      <div className="cardBody">{children}</div>
+    </div>
+  );
+}
+
+export default async function Home() {
+  const locale = await getLocale();
+  const m = getMessages(locale);
+
+  const nav: NavItem[] = [
+    { label: m.nav.outcomes, href: "#outcomes" },
+    { label: m.nav.how, href: "#how" },
+    { label: m.nav.about, href: "#about" },
+    { label: m.nav.faq, href: "#faq" },
+  ];
+
+  const aboutDescription = `${siteConfig.coachRole}. ${m.about.description}`;
+
+  return (
+    <div className="page">
+      <div className="siteHeader">
+        <div className="container headerInner">
+          <a href="#top" className="brand">
+            {m.brand}
+          </a>
+
+          <nav className="nav">
+            {nav.map((item) => (
+              <a key={item.href} href={item.href} className="navLink">
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="headerActions">
+            <LanguageToggle
+              locale={locale}
+              ariaLabel={m.lang.label}
+              options={[
+                { locale: "en", label: m.lang.en },
+                { locale: "zh", label: m.lang.zh },
+              ]}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <a className="btn btnSecondary hideSm" href="#syllabus">
+              {m.header.getSyllabus}
+            </a>
+            <a
+              className="btn btnPrimary"
+              href={`mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(
+                m.email.contactSubject,
+              )}`}
+            >
+              {m.header.contact}
+            </a>
+          </div>
         </div>
+      </div>
+
+      <main id="top" className="container main">
+        <section className="hero">
+          <div className="heroText">
+            <p className="badge">{m.hero.badge}</p>
+            <h1 className="h1">{m.hero.title}</h1>
+            <p className="lead">{m.hero.lead}</p>
+
+            <div className="ctaRow">
+              <a className="btn btnPrimary" href="#syllabus">
+                {m.hero.ctaPrimary}
+              </a>
+              <a className="btn btnSecondary" href="#about">
+                {m.hero.ctaSecondary}
+              </a>
+            </div>
+
+            <p className="note">{m.hero.note}</p>
+          </div>
+
+          <div className="heroGrid">
+            {m.hero.cards.map((c) => (
+              <Card key={c.title} title={c.title}>
+                {c.body}
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section id="outcomes" className="section">
+          <SectionHeader
+            eyebrow={m.outcomes.eyebrow}
+            title={m.outcomes.title}
+            description={m.outcomes.description}
+          />
+
+          <div className="grid3">
+            {m.outcomes.cards.map((c) => (
+              <Card key={c.title} title={c.title}>
+                {c.body}
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section id="how" className="section">
+          <SectionHeader
+            eyebrow={m.method.eyebrow}
+            title={m.method.title}
+            description={m.method.description}
+          />
+
+          <div className="grid3">
+            {m.method.cards.map((c) => (
+              <Card key={c.title} title={c.title}>
+                {c.body}
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section id="about" className="section">
+          <SectionHeader
+            eyebrow={m.about.eyebrow}
+            title={`${m.about.titlePrefix} ${siteConfig.coachName}.`}
+            description={aboutDescription}
+          />
+
+          <div className="grid2 wide">
+            {m.about.cards.map((c) => (
+              <Card key={c.title} title={c.title}>
+                {c.body}
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section id="syllabus" className="section" aria-labelledby="syllabus-title">
+          <div className="panel">
+            <div className="panelGrid">
+              <div>
+                <h2 id="syllabus-title" className="h2 left">
+                  {m.syllabus.title}
+                </h2>
+                <p className="sectionDesc left">{m.syllabus.description}</p>
+
+                <div className="ctaRow">
+                  <a
+                    className="btn btnPrimary"
+                    href={`mailto:${siteConfig.contactEmail}?subject=${encodeURIComponent(
+                      m.email.syllabusSubject,
+                    )}&body=${encodeURIComponent(m.email.syllabusBody)}`}
+                  >
+                    {m.syllabus.ctaPrimary}
+                  </a>
+                  <a className="btn btnSecondary" href="#faq">
+                    {m.syllabus.ctaSecondary}
+                  </a>
+                </div>
+
+                <p className="note">{m.syllabus.note}</p>
+              </div>
+
+              <div className="grid2">
+                {m.syllabus.cards.map((c) => (
+                  <Card key={c.title} title={c.title}>
+                    {c.body}
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="faq" className="section">
+          <SectionHeader
+            eyebrow={m.faq.eyebrow}
+            title={m.faq.title}
+            description={m.faq.description}
+          />
+
+          <div className="faq">
+            {m.faq.items.map((item) => (
+              <details key={item.q} className="faqItem">
+                <summary className="faqSummary">{item.q}</summary>
+                <p className="faqBody">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <footer className="footer">
+          <p>
+            © {new Date().getFullYear()} {m.brand}
+          </p>
+          <p className="footerContact">
+            {m.footer.contactLabel}{" "}
+            <a className="footerLink" href={`mailto:${siteConfig.contactEmail}`}>
+              {siteConfig.contactEmail}
+            </a>
+          </p>
+        </footer>
       </main>
     </div>
   );
