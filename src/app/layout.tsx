@@ -1,62 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getMessages } from "@/i18n/messages";
-import { getLocale } from "@/i18n/server";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const m = getMessages(locale);
-  const description =
-    locale === "zh"
-      ? "面向开发者的英语口语训练营：用清晰、简单的英语参与会议、面试与日常协作。"
-      : "A practical oral English training camp for developers—learn to speak clearly with simple, confident English for meetings, interviews, and daily work.";
+export const metadata: Metadata = {
+  title: "学期课程时间表 · 2026年4月—7月",
+  description: "英语口语学期课，零基础/口语突破/求职英语，每周 2 节录制课 + 无限量一对一。",
+};
 
-  return {
-    title: {
-      default: m.brand,
-      template: `%s · ${m.brand}`,
-    },
-    description,
-    applicationName: m.brand,
-    keywords:
-      locale === "zh"
-        ? [
-            "开发者英语",
-            "英语口语",
-            "职场英语",
-            "技术沟通",
-            "面试英语",
-          ]
-        : [
-            "English for developers",
-            "spoken English",
-            "oral English",
-            "tech communication",
-            "career growth",
-          ],
-    robots: { index: true, follow: true },
-    openGraph: {
-      title: m.brand,
-      description,
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title: m.brand,
-      description,
-    },
-  };
-}
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const locale = await getLocale();
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={locale}>
+    <html lang="zh">
       <body className="appBody">{children}</body>
     </html>
   );
